@@ -20,6 +20,21 @@ AGENDA_PRESENCIAL='#'       # idem, presencial
 INSTAGRAM='https://www.instagram.com/julianaarv'
 # Widget de feedback (alpha-tester). Vazio = desligado. Quando ligado, só aparece em *.pages.dev ou com localStorage.alpha = '1'.
 ALPHA_TESTER={'endpoint':'','projectId':'','apiKey':''}
+# As credenciais podem vir de variáveis de ambiente ou de um arquivo local ignorado pelo git (alpha-tester.local, linhas CHAVE=VALOR):
+#   ALPHA_TESTER_ENDPOINT, ALPHA_TESTER_PROJECT_ID, ALPHA_TESTER_API_KEY (chave publicável at_pub_; nunca a secreta at_sec_)
+def _load_alpha():
+    vals=dict(os.environ)
+    f=os.path.join(HERE,'alpha-tester.local')
+    if os.path.exists(f):
+        for line in open(f,encoding='utf-8'):
+            line=line.strip()
+            if line and not line.startswith('#') and '=' in line:
+                k,_,v=line.partition('='); vals.setdefault(k.strip(),v.strip().strip('"').strip("'"))
+    for key,var in (('endpoint','ALPHA_TESTER_ENDPOINT'),('projectId','ALPHA_TESTER_PROJECT_ID'),('apiKey','ALPHA_TESTER_API_KEY')):
+        if vals.get(var): ALPHA_TESTER[key]=vals[var]
+    if ALPHA_TESTER['apiKey'] and not ALPHA_TESTER['apiKey'].startswith('at_pub_'):
+        sys.exit('ALPHA_TESTER_API_KEY precisa ser a chave publicável (at_pub_...). Uma chave secreta nunca vai para o HTML.')
+_load_alpha()
 EMAIL='contato@seumarketing360.com.br'
 def wa(msg):
     return f'https://wa.me/{WHATSAPP_NUMBER}?text={quote(msg)}' if WHATSAPP_NUMBER else 'produtos.html#contato'
