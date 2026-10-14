@@ -183,7 +183,7 @@ MARCAS=f'''<main><section class="sec"><div class="panel glass pg prose">
 <div class="card hl wide case" style="margin-top:14px"><small class="kicker">Em destaque · Varejo · Posicionamento · Parcerias · Estratégia comercial</small><h2>New Look Time: da credibilidade digital à estratégia comercial</h2>
 <p>O projeto começou com o desafio de fortalecer a credibilidade da marca nas redes sociais, em um mercado no qual a confiança é decisiva para a compra.</p>
 <p>A estratégia inicial priorizou conteúdos educativos e vídeos de alerta sobre golpes digitais. Em uma segunda etapa, com a queda das vendas da unidade do Shopping West Plaza, o direcionamento passou a incluir parcerias com o shopping, podcasts, influenciadores e conteúdos que reforçassem a confiança e os diferenciais da loja.</p>
-<div class="numrow" style="margin:10px 0;justify-content:flex-start"><div class="big">4<small>meses</small></div><p style="max-width:40ch">Ao final desse período, a loja passou a faturar, em média, o mesmo que as outras unidades.</p></div>
+<div class="stat"><div class="big">4<small>meses</small></div><p>Ao final desse período, a loja passou a faturar, em média, o mesmo que as outras unidades.</p></div>
 <p>O que esse projeto demonstra: a capacidade de adaptar a estratégia ao momento do negócio, conectar comunicação e ações comerciais e trabalhar com objetivos que vão além das métricas das redes sociais.</p></div>
 </div></section>
 <section class="sec"><div class="panel glass prose"><h2>Experiência que vai além das redes sociais.</h2>

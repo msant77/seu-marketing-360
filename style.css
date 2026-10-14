@@ -116,3 +116,15 @@ h1,h2,h3{text-wrap:balance}
 .case h2{max-width:24ch}.case .big{font:800 clamp(56px,9vw,96px)/.9 'Big Shoulders Display','Arial Narrow',Impact,sans-serif;color:#E0CFA0}.case .big small{font:400 16px/1.3 var(--ff);margin-left:8px;color:var(--hfg)}
 .card .v+small{margin-top:-4px}
 .ig{display:inline-flex;align-items:center;gap:6px}.ig svg{width:16px;height:16px}
+/* #1 (14/10): coluna de texto centralizada nos painéis, com margens iguais; parágrafos seguem alinhados à esquerda */
+.panel>h1,.panel>h2,.panel>.kicker,.panel>.lead,.panel>.fine,.prose>p,.prose>.quote,.prose>.tags,.panel>.grid{margin-inline:auto}
+.panel>h1,.panel>h2,.panel>.kicker{text-align:center;max-width:30ch}
+.panel>.lead,.panel>.fine{text-align:center;max-width:60ch}
+.prose p{max-width:70ch}.prose .quote{text-align:center;margin-inline:auto}
+.panel .tags,.panel .cta,.card.hl .cta{justify-content:center}
+.hero2 .copy2{margin-inline:auto;text-align:center}.hero2 .copy2 p{margin-inline:auto}.hero2 h1{text-wrap:balance}
+.card.hl>.quote{margin-inline:auto;text-align:center}
+.case .stat{display:grid;justify-items:center;text-align:center;gap:4px;margin:24px auto 8px}
+.case .stat .big{font:800 clamp(84px,15vw,150px)/.85 'Big Shoulders Display','Arial Narrow',Impact,sans-serif;color:#E0CFA0}
+.case .stat .big small{display:block;font:500 clamp(15px,2.2vw,20px)/1.2 var(--ff);letter-spacing:.1em;text-transform:uppercase;margin-top:8px;color:var(--hfg)}
+.case .stat p{max-width:44ch;font-size:17px;margin-top:8px}
