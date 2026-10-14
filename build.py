@@ -266,24 +266,28 @@ def full(path,title,desc,cur,main,extra_js,with_widget=True):
 '''
 def artifact_index(title,main,extra_js):
     return f'<title>{title}</title>\n{FONTS}\n<style>{CSS}</style>\n{body("index.html",main,extra_js)}\n'
-OUT=os.path.join(HERE,'out'); shutil.rmtree(OUT,ignore_errors=True)
-for sub in ('dist','artifact'):
-    d=os.path.join(OUT,sub); os.makedirs(d); shutil.copytree(os.path.join(HERE,'img'),os.path.join(d,'img'))
-    if sub=='dist' and all(ALPHA_TESTER.values()): shutil.copytree(os.path.join(HERE,'js'),os.path.join(d,'js'))
-    for path,title,desc,main,js in PAGES:
-        cur=path if path!='privacidade.html' else ''
-        if sub=='artifact' and path=='index.html': txt=artifact_index('Seu Marketing 360 — site v1',main,js)
-        else: txt=full(path,title,desc,cur,main,js,with_widget=(sub=='dist'))
-        if sub=='dist':   # Pages serve URLs limpas: /produtos em vez de /produtos.html (evita um redirect por clique)
-            txt=re.sub(r'href="index\.html(#[^"]*)?"', lambda m: 'href="/'+(m.group(1) or '')+'"', txt)
-            txt=re.sub(r'href="(quem-eu-sou|marcas-e-creators|produtos|privacidade)\.html', r'href="/\1', txt)
-        open(os.path.join(d,path),'w',encoding='utf-8').write(txt)
-dist=os.path.join(OUT,'dist'); today=datetime.date.today().isoformat()
-open(os.path.join(dist,'robots.txt'),'w').write('User-agent: *\nDisallow: /\n' if NOINDEX else f'User-agent: *\nAllow: /\nSitemap: {BASE}/sitemap.xml\n')
-open(os.path.join(dist,'sitemap.xml'),'w').write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'+''.join(f'<url><loc>{BASE}/{"" if p=="index.html" else p[:-5]}</loc><lastmod>{today}</lastmod></url>\n' for p,*_ in PAGES)+'</urlset>\n')
-open(os.path.join(dist,'_headers'),'w').write('/img/*\n  Cache-Control: public, max-age=31536000, immutable\n')
-host=BASE.split('//')[-1]
-open(os.path.join(dist,'_redirects'),'w').write(f'https://www.{host}/* {BASE}/:splat 301\n')
-total=sum(os.path.getsize(os.path.join(r,f)) for r,_,fs in os.walk(dist) for f in fs)
-print('out/dist:',sorted(os.listdir(dist)),f'| {total/1024:.0f} KB')
-print('out/artifact:',sorted(os.listdir(os.path.join(OUT,'artifact'))))
+def main():
+    OUT=os.path.join(HERE,'out'); shutil.rmtree(OUT,ignore_errors=True)
+    for sub in ('dist','artifact'):
+        d=os.path.join(OUT,sub); os.makedirs(d); shutil.copytree(os.path.join(HERE,'img'),os.path.join(d,'img'))
+        if sub=='dist' and all(ALPHA_TESTER.values()): shutil.copytree(os.path.join(HERE,'js'),os.path.join(d,'js'))
+        for path,title,desc,main,js in PAGES:
+            cur=path if path!='privacidade.html' else ''
+            if sub=='artifact' and path=='index.html': txt=artifact_index('Seu Marketing 360 — site v1',main,js)
+            else: txt=full(path,title,desc,cur,main,js,with_widget=(sub=='dist'))
+            if sub=='dist':   # Pages serve URLs limpas: /produtos em vez de /produtos.html (evita um redirect por clique)
+                txt=re.sub(r'href="index\.html(#[^"]*)?"', lambda m: 'href="/'+(m.group(1) or '')+'"', txt)
+                txt=re.sub(r'href="(quem-eu-sou|marcas-e-creators|produtos|privacidade)\.html', r'href="/\1', txt)
+            open(os.path.join(d,path),'w',encoding='utf-8').write(txt)
+    dist=os.path.join(OUT,'dist'); today=datetime.date.today().isoformat()
+    open(os.path.join(dist,'robots.txt'),'w').write('User-agent: *\nDisallow: /\n' if NOINDEX else f'User-agent: *\nAllow: /\nSitemap: {BASE}/sitemap.xml\n')
+    open(os.path.join(dist,'sitemap.xml'),'w').write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'+''.join(f'<url><loc>{BASE}/{"" if p=="index.html" else p[:-5]}</loc><lastmod>{today}</lastmod></url>\n' for p,*_ in PAGES)+'</urlset>\n')
+    open(os.path.join(dist,'_headers'),'w').write('/img/*\n  Cache-Control: public, max-age=31536000, immutable\n')
+    host=BASE.split('//')[-1]
+    open(os.path.join(dist,'_redirects'),'w').write(f'https://www.{host}/* {BASE}/:splat 301\n')
+    total=sum(os.path.getsize(os.path.join(r,f)) for r,_,fs in os.walk(dist) for f in fs)
+    print('out/dist:',sorted(os.listdir(dist)),f'| {total/1024:.0f} KB')
+    print('out/artifact:',sorted(os.listdir(os.path.join(OUT,'artifact'))))
+
+if __name__=='__main__':
+    main()
