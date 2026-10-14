@@ -9,11 +9,13 @@ Site da Seu Marketing 360 (Juliana Aragão S.). Site estático em quatro página
 - `privacidade.body.html` é o rascunho da política de privacidade (LGPD).
 
 ## Publicar
+Automático: todo push na `main` publica em produção (https://seumarketing360.com.br) pelo workflow `.github/workflows/deploy.yml`; pull requests ganham uma prévia em `<branch>.seumarketing360.pages.dev`. Segredos do repositório: `CLOUDFLARE_API_TOKEN` (token com permissão Cloudflare Pages: Edit), `CLOUDFLARE_ACCOUNT_ID`, `ALPHA_TESTER_API_KEY` (chave publicável do widget).
+
+Manual, se precisar:
 ```bash
 python3 build.py
 wrangler pages deploy out/dist --project-name seumarketing360 --branch main --commit-dirty=true
 ```
-Produção: https://seumarketing360.pages.dev (domínio seumarketing360.com.br quando o DNS apontar).
 
 ## Repositório
 https://github.com/msant77/seu-marketing-360 (público). Não guardar segredos aqui: a chave do widget é publicável (`at_pub_`), o número do WhatsApp e os links já são públicos no site.
