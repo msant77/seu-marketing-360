@@ -135,3 +135,16 @@ h1,h2,h3{text-wrap:balance}
 .diff{display:inline-block;align-self:flex-start;padding:7px 12px;border-radius:10px;background:var(--hbg);color:#E0CFA0;font-size:14px;font-weight:500}
 .card.wide ul.cols{columns:2;column-gap:28px}.card.wide ul.cols li{break-inside:avoid}
 @media(max-width:700px){.card.wide ul.cols{columns:1}}
+
+/* #5 (14/10): larguras até 600px. Uma coluna de cards, preços numa linha, renders 3D sem cobrir conteúdo. */
+@media(max-width:600px){
+.grid,.plans{grid-template-columns:1fr}
+.card .v,.mini .v{font-size:clamp(22px,6.5vw,28px);white-space:nowrap}
+.specs{grid-template-columns:1fr 1fr;max-width:none}
+.numrow{justify-content:center;gap:12px 24px}.num{font-size:clamp(110px,30vw,170px)}
+.hero2{padding-bottom:28px}
+.s-bars{position:static;width:150px;margin:10px auto 0;transform:none;pointer-events:none}
+.s-tg{display:none}
+.case .stat .big{font-size:clamp(72px,22vw,110px)}
+}
+@media(max-width:420px){.orbit{--r:calc(var(--d)*.36)}.chip span{font-size:13px;padding:8px 12px 8px 8px}.chip .ic{width:18px;height:18px}}
