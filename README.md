@@ -15,5 +15,8 @@ wrangler pages deploy out/dist --project-name seumarketing360 --branch main --co
 ```
 Produção: https://seumarketing360.pages.dev (domínio seumarketing360.com.br quando o DNS apontar).
 
+## Repositório
+https://github.com/msant77/seu-marketing-360 (público). Não guardar segredos aqui: a chave do widget é publicável (`at_pub_`), o número do WhatsApp e os links já são públicos no site.
+
 ## Ajustes
 Cada pedido de ajuste vira uma issue aqui (manualmente ou pelo widget do alpha-tester embutido no site). Rótulos: `conteúdo`, `design`, `bug`, `ajuste`.
