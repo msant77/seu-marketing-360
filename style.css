@@ -128,3 +128,10 @@ h1,h2,h3{text-wrap:balance}
 .case .stat .big{font:800 clamp(84px,15vw,150px)/.85 'Big Shoulders Display','Arial Narrow',Impact,sans-serif;color:#E0CFA0}
 .case .stat .big small{display:block;font:500 clamp(15px,2.2vw,20px)/1.2 var(--ff);letter-spacing:.1em;text-transform:uppercase;margin-top:8px;color:var(--hfg)}
 .case .stat p{max-width:44ch;font-size:17px;margin-top:8px}
+
+/* #2 (14/10): métodos lado a lado, mesma altura, botão no pé, diferença mensal em relação ao Experimental 30 */
+.plans{grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;align-items:stretch}
+.plans .card{padding:26px 24px;gap:10px}.plans .card ul{margin-top:2px}
+.diff{display:inline-block;align-self:flex-start;padding:7px 12px;border-radius:10px;background:var(--hbg);color:#E0CFA0;font-size:14px;font-weight:500}
+.card.wide ul.cols{columns:2;column-gap:28px}.card.wide ul.cols li{break-inside:avoid}
+@media(max-width:700px){.card.wide ul.cols{columns:1}}
