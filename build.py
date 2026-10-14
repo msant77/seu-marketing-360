@@ -20,20 +20,42 @@ AGENDA_PRESENCIAL='#'       # idem, presencial
 INSTAGRAM='https://www.instagram.com/julianaarv'
 # Widget de feedback (alpha-tester). Vazio = desligado. Quando ligado, só aparece em *.pages.dev ou com localStorage.alpha = '1'.
 ALPHA_TESTER={'endpoint':'','projectId':'','apiKey':''}
-# As credenciais podem vir de variáveis de ambiente ou de um arquivo local ignorado pelo git (alpha-tester.local, linhas CHAVE=VALOR):
-#   ALPHA_TESTER_ENDPOINT, ALPHA_TESTER_PROJECT_ID, ALPHA_TESTER_API_KEY (chave publicável at_pub_; nunca a secreta at_sec_)
+# Credenciais do widget ficam UM NÍVEL ACIMA do repositório (fora do git): ../.env.local ou ../alpha-tester.local,
+# ou nas variáveis de ambiente ALPHA_TESTER_ENDPOINT / ALPHA_TESTER_PROJECT_ID / ALPHA_TESTER_API_KEY.
+# O nome da variável no arquivo não importa: o script usa o valor que começa com at_pub_ (chave publicável; uma at_sec_ é ignorada),
+# um UUID como projectId e um endereço https com "alphatester" como endpoint. Sem projectId, pergunta ao backend.
 def _load_alpha():
-    vals=dict(os.environ)
-    f=os.path.join(HERE,'alpha-tester.local')
-    if os.path.exists(f):
+    uuid_re=re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',re.I)
+    env=os.environ
+    for key,var in (('endpoint','ALPHA_TESTER_ENDPOINT'),('projectId','ALPHA_TESTER_PROJECT_ID'),('apiKey','ALPHA_TESTER_API_KEY')):
+        if env.get(var): ALPHA_TESTER[key]=env[var].strip()
+    for name in ('.env.local','alpha-tester.local'):
+        f=os.path.join(HERE,'..',name)
+        if not os.path.exists(f): continue
         for line in open(f,encoding='utf-8'):
             line=line.strip()
-            if line and not line.startswith('#') and '=' in line:
-                k,_,v=line.partition('='); vals.setdefault(k.strip(),v.strip().strip('"').strip("'"))
-    for key,var in (('endpoint','ALPHA_TESTER_ENDPOINT'),('projectId','ALPHA_TESTER_PROJECT_ID'),('apiKey','ALPHA_TESTER_API_KEY')):
-        if vals.get(var): ALPHA_TESTER[key]=vals[var]
-    if ALPHA_TESTER['apiKey'] and not ALPHA_TESTER['apiKey'].startswith('at_pub_'):
-        sys.exit('ALPHA_TESTER_API_KEY precisa ser a chave publicável (at_pub_...). Uma chave secreta nunca vai para o HTML.')
+            if line.startswith('export '): line=line[7:]
+            if not line or line.startswith('#') or '=' not in line: continue
+            k,_,v=line.partition('='); k=k.strip(); v=v.strip().strip('"').strip("'")
+            if k=='ALPHA_TESTER_ENDPOINT': ALPHA_TESTER['endpoint']=v
+            elif k=='ALPHA_TESTER_PROJECT_ID': ALPHA_TESTER['projectId']=v
+            elif k=='ALPHA_TESTER_API_KEY': ALPHA_TESTER['apiKey']=v
+            elif v.startswith('at_pub_') and not ALPHA_TESTER['apiKey']: ALPHA_TESTER['apiKey']=v
+            elif uuid_re.match(v) and not ALPHA_TESTER['projectId']: ALPHA_TESTER['projectId']=v
+            elif v.startswith('http') and 'alphatester' in v and not ALPHA_TESTER['endpoint']: ALPHA_TESTER['endpoint']=v.rstrip('/')
+    k=ALPHA_TESTER['apiKey']
+    if not k: return
+    if not k.startswith('at_pub_'): sys.exit('A chave do widget precisa ser a publicável (at_pub_...). Uma chave secreta nunca vai para o HTML.')
+    if not ALPHA_TESTER['endpoint']: ALPHA_TESTER['endpoint']='https://dev.alphatester.app'
+    import urllib.request
+    try:
+        req=urllib.request.Request(ALPHA_TESTER['endpoint']+'/api/v1/sdk/init',headers={'X-API-Key':k,'Origin':'https://seumarketing360.pages.dev','User-Agent':'Mozilla/5.0 (Macintosh) seu-marketing-360-build/1.0'})
+        info=json.load(urllib.request.urlopen(req,timeout=20))
+    except Exception as e:
+        sys.exit(f'Widget: backend não validou a chave ({e}). Nada publicado com o widget.')
+    if not ALPHA_TESTER['projectId']: ALPHA_TESTER['projectId']=info.get('projectId','')
+    if ALPHA_TESTER['projectId']!=info.get('projectId'): sys.exit('Widget: o projectId do arquivo não bate com o da chave.')
+    print(f"widget alpha-tester: projeto {info.get('projectName')} ({info.get('projectSlug')}) em {ALPHA_TESTER['endpoint']}")
 _load_alpha()
 EMAIL='contato@seumarketing360.com.br'
 def wa(msg):
