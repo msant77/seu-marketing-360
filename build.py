@@ -4,7 +4,7 @@
 Uso: python3 build.py [--base https://url] [--noindex]
 Saída: out/dist/ (site completo para hospedagem) e out/artifact/ (index sem esqueleto + páginas + img, para o artifact).
 Dados que ainda faltam (WhatsApp, Hotmart, agenda): preencher nas constantes abaixo e rodar de novo."""
-import os, re, shutil, sys, datetime, html
+import os, re, shutil, sys, datetime, html, json
 from urllib.parse import quote
 HERE=os.path.dirname(os.path.abspath(__file__))
 BASE='https://seumarketing360.com.br'; NOINDEX=False
@@ -18,6 +18,8 @@ HOTMART_VIDEO='#'           # link do curso Captação e Edição de Vídeos
 AGENDA_ONLINE='#'           # link de agenda da reunião online (Cal.com) ou de pagamento
 AGENDA_PRESENCIAL='#'       # idem, presencial
 INSTAGRAM='https://www.instagram.com/julianaarv'
+# Widget de feedback (alpha-tester). Vazio = desligado. Quando ligado, só aparece em *.pages.dev ou com localStorage.alpha = '1'.
+ALPHA_TESTER={'endpoint':'','projectId':'','apiKey':''}
 EMAIL='contato@seumarketing360.com.br'
 def wa(msg):
     return f'https://wa.me/{WHATSAPP_NUMBER}?text={quote(msg)}' if WHATSAPP_NUMBER else 'produtos.html#contato'
@@ -67,6 +69,10 @@ JS_COMMON="""<script>
 JS_LENS="""<script>
 (function(){var s=document.querySelector('.sph'),c=document.querySelector('.scene-copy'),l=document.querySelector('.lens');if(!s||!c||!l)return;var raf=0;function place(){raf=0;var r=s.getBoundingClientRect();c.style.width=innerWidth+'px';c.style.height=innerHeight+'px';c.style.left=(-r.left)+'px';c.style.top=(-r.top)+'px';c.style.transformOrigin=(r.left+r.width/2)+'px '+(r.top+r.height/2)+'px';l.style.visibility='visible'}function req(){if(!raf)raf=requestAnimationFrame(place)}addEventListener('scroll',req,{passive:true});addEventListener('resize',req);place();setTimeout(place,300)})();
 </script>"""
+def widget():
+    if not all(ALPHA_TESTER.values()): return ''
+    return ('<script src="/js/alpha-tester.umd.js" defer></script>\n<script>addEventListener("DOMContentLoaded",function(){var on=/\\.pages\\.dev$/.test(location.hostname)||localStorage.getItem("alpha")==="1";'
+            'if(on&&window.AlphaTester)AlphaTester.init('+json.dumps(ALPHA_TESTER)+')});</script>\n')
 def cta(primary_href, primary='Começar os 30 dias', alt=True):
     s=f'<div class="cta"><a class="btn" href="{primary_href}">{primary}</a>'
     if alt: s+=f'<a class="btn alt" href="{wa("Olá, Juliana! Tenho uma dúvida sobre o Seu Marketing 360.")}">Tirar dúvidas no WhatsApp</a>'
@@ -198,7 +204,7 @@ PAGES=[  # (arquivo, título, descrição, corpo, scripts extras)
  ('privacidade.html','Política de privacidade — Seu Marketing 360','Como o site seumarketing360.com.br trata os seus dados, conforme a LGPD.',PRIV,''),
 ]
 def body(cur,main,extra_js): return SCENE+FX+header(cur)+main+FOOTER+JS_COMMON+extra_js
-def full(path,title,desc,cur,main,extra_js):
+def full(path,title,desc,cur,main,extra_js,with_widget=True):
     robots='<meta name="robots" content="noindex, nofollow">\n' if NOINDEX else ''
     url=BASE+'/'+('' if path=='index.html' else path[:-5])
     return f'''<!DOCTYPE html>
@@ -218,7 +224,7 @@ def full(path,title,desc,cur,main,extra_js):
 </head>
 <body>
 {body(cur,main,extra_js)}
-</body>
+{widget() if with_widget else ''}</body>
 </html>
 '''
 def artifact_index(title,main,extra_js):
@@ -226,10 +232,11 @@ def artifact_index(title,main,extra_js):
 OUT=os.path.join(HERE,'out'); shutil.rmtree(OUT,ignore_errors=True)
 for sub in ('dist','artifact'):
     d=os.path.join(OUT,sub); os.makedirs(d); shutil.copytree(os.path.join(HERE,'img'),os.path.join(d,'img'))
+    if sub=='dist' and all(ALPHA_TESTER.values()): shutil.copytree(os.path.join(HERE,'js'),os.path.join(d,'js'))
     for path,title,desc,main,js in PAGES:
         cur=path if path!='privacidade.html' else ''
         if sub=='artifact' and path=='index.html': txt=artifact_index('Seu Marketing 360 — site v1',main,js)
-        else: txt=full(path,title,desc,cur,main,js)
+        else: txt=full(path,title,desc,cur,main,js,with_widget=(sub=='dist'))
         if sub=='dist':   # Pages serve URLs limpas: /produtos em vez de /produtos.html (evita um redirect por clique)
             txt=re.sub(r'href="index\.html(#[^"]*)?"', lambda m: 'href="/'+(m.group(1) or '')+'"', txt)
             txt=re.sub(r'href="(quem-eu-sou|marcas-e-creators|produtos|privacidade)\.html', r'href="/\1', txt)
