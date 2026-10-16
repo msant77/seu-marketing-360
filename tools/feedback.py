@@ -8,6 +8,7 @@ Uso:
   python3 tools/feedback.py show ID
   python3 tools/feedback.py set ID STATUS [--note "texto"] [--priority low|medium|high|critical]
   python3 tools/feedback.py issue ID          # cria a issue no GitHub pela integração do projeto
+  python3 tools/feedback.py attachment KEY    # baixa um anexo pelo proxy do painel e confere tipo e tamanho
 """
 import json, os, sys, urllib.request, urllib.error, urllib.parse, textwrap
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
@@ -76,6 +77,15 @@ def cmd_set(args):
 def cmd_issue(args):
     it = resolve(args[0]); st, d = call('POST', f"{P}/{it['id']}/github-issue"); print(f"HTTP {st}", json.dumps(d, ensure_ascii=False)[:400])
 
+def cmd_attachment(args):
+    url = cfg['endpoint'] + '/api/v1/attachments/' + urllib.parse.quote(args[0], safe='/')
+    req = urllib.request.Request(url, headers={'Cookie': '__Secure-authjs.session-token=' + session(), 'User-Agent': UA})
+    try:
+        with urllib.request.urlopen(req, timeout=40) as r:
+            data = r.read(); kind = 'PNG' if data[:8] == b'\x89PNG\r\n\x1a\n' else 'outro'
+            print(f"HTTP {r.status} {r.headers.get('Content-Type')} {len(data)} bytes ({kind}); cache: {r.headers.get('Cache-Control')}")
+    except urllib.error.HTTPError as e: print(f'HTTP {e.code}', e.read().decode()[:300])
+
 if __name__ == '__main__':
     a = sys.argv[1:]
-    {'list': cmd_list, 'show': cmd_show, 'set': cmd_set, 'issue': cmd_issue}.get(a[0] if a else '', lambda _: sys.exit(__doc__))(a[1:])
+    {'list': cmd_list, 'show': cmd_show, 'set': cmd_set, 'issue': cmd_issue, 'attachment': cmd_attachment}.get(a[0] if a else '', lambda _: sys.exit(__doc__))(a[1:])
